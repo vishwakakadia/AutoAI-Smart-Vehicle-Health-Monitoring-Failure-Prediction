@@ -4,7 +4,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # MQTT Broker (HiveMQ - Free Public Broker)
-BROKER = "broker.hivemq.com"
+BROKER = "test.mosquitto.org"
 PORT = 1883
 TOPIC = "vehicle/sensor_data"
 

@@ -3,14 +3,22 @@ import json
 import pandas as pd
 
 # MQTT Settings
-BROKER = "broker.hivemq.com"
+BROKER = "test.mosquitto.org" 
+PORT = 1883
 TOPIC = "vehicle/sensor_data"
 data_list = []
 
-# Callback when connected to MQTT
-def on_connect(client, userdata, flags, rc):
-    print(f"✅ Connected to MQTT Broker: {BROKER} with result code {rc}")
-    client.subscribe(TOPIC)
+# Debugging function
+def on_log(client, userdata, level, buf):
+    print(f"📜 MQTT Log: {buf}")  # Shows connection logs
+
+# Fix: Update function signature to accept 'properties'
+def on_connect(client, userdata, flags, rc, properties):
+    if rc == 0:
+        print(f"✅ Connected to MQTT Broker: {BROKER} with result code {rc}")
+        client.subscribe(TOPIC)
+    else:
+        print(f"❌ Failed to connect, return code: {rc}")
 
 # Callback when message is received
 def on_message(client, userdata, message):
@@ -26,10 +34,10 @@ def on_message(client, userdata, message):
 
 # Fix for MQTT Deprecation Warning
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-print('hii')
 
+client.on_log = on_log  # Enable logs
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect(BROKER, 1883, 60)
+client.connect(BROKER, PORT, 60)
 client.loop_forever()

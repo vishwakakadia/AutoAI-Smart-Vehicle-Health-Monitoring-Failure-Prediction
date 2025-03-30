@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Vehicle Monitoring</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h2>🚗 Real-Time Vehicle Monitoring</h2>
+
+    <div id="sensor_chart"></div>
+    <div id="failure_status">Failure Status: Loading...</div>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('/get_data');
+            const data = await response.json();
+
+            let engine_temp = data.map(d => d.engine_temp);
+            let fuel_pressure = data.map(d => d.fuel_pressure);
+            let failure_status = data[data.length - 1].failure_status;
+
+            // Update failure status
+            document.getElementById("failure_status").innerHTML = 
+                "Failure Status: " + (failure_status ? "⚠ FAILURE" : "✅ NORMAL");
+
+            // Update Chart
+            Plotly.newPlot('sensor_chart', [{
+                y: engine_temp, name: "Engine Temp", type: 'scatter'
+            }, {
+                y: fuel_pressure, name: "Fuel Pressure", type: 'scatter'
+            }]);
+        }
+
+        setInterval(fetchData, 2000);
+    </script>
+</body>
+</html>

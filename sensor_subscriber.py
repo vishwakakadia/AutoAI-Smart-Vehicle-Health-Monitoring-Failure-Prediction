@@ -1,43 +1,54 @@
 import paho.mqtt.client as mqtt
 import json
-import pandas as pd
+import numpy as np
+import joblib
+import requests
 
-# MQTT Settings
-BROKER = "test.mosquitto.org" 
+# Load the trained XGBoost model
+model = joblib.load("xgb_model.pkl")  
+
+# Flask API endpoint to send predictions
+FLASK_API_URL = "http://127.0.0.1:5050/update_data"
+
+# MQTT Broker
+BROKER = "test.mosquitto.org"
 PORT = 1883
 TOPIC = "vehicle/sensor_data"
-data_list = []
 
-# Debugging function
-def on_log(client, userdata, level, buf):
-    print(f"📜 MQTT Log: {buf}")  # Shows connection logs
+# Callback when a message is received from MQTT
+def on_message(client, userdata, msg):
+    try:
+        # Parse incoming JSON data
+        data = json.loads(msg.payload.decode())
+        
+        # Extract sensor values
+        features = np.array([
+            data["engine_temp"],
+            data["battery_voltage"],
+            data["fuel_pressure"],
+            data["oil_temp"],
+            data["engine_load"]
+        ]).reshape(1, -1)
 
-# Fix: Update function signature to accept 'properties'
-def on_connect(client, userdata, flags, rc, properties):
-    if rc == 0:
-        print(f"✅ Connected to MQTT Broker: {BROKER} with result code {rc}")
-        client.subscribe(TOPIC)
-    else:
-        print(f"❌ Failed to connect, return code: {rc}")
+        # Run the prediction
+        prediction = model.predict(features)[0]  # 0 = Normal, 1 = Failure
 
-# Callback when message is received
-def on_message(client, userdata, message):
-    data = json.loads(message.payload.decode("utf-8"))
-    data_list.append(data)
-    print(f"📥 Received Data: {data}")
+        # Add prediction to data
+        data["failure_status"] = int(prediction)
 
-    if len(data_list) >= 10:
-        df = pd.DataFrame(data_list)
-        df.to_csv("real_time_sensor_data.csv", mode="a", header=False, index=False)
-        print("✅ Data Saved to CSV")
-        data_list.clear()
+        # Send data to Flask API for dashboard
+        requests.post(FLASK_API_URL, json=data)
 
-# Fix for MQTT Deprecation Warning
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        print(f"Received Data: {data}")
 
-client.on_log = on_log  # Enable logs
-client.on_connect = on_connect
+    except Exception as e:
+        print(f"Error processing message: {e}")
+
+# MQTT Client Setup
+client = mqtt.Client()
 client.on_message = on_message
-
 client.connect(BROKER, PORT, 60)
+client.subscribe(TOPIC)
+
+print("🚀 MQTT Subscriber Running...")
 client.loop_forever()

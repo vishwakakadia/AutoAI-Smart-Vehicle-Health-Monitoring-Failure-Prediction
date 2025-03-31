@@ -50,5 +50,5 @@ client.on_message = on_message
 client.connect(BROKER, PORT, 60)
 client.subscribe(TOPIC)
 
-print("🚀 MQTT Subscriber Running...")
+print("MQTT Subscriber Running...")
 client.loop_forever()

@@ -7,7 +7,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <h2>🚗 Real-Time Vehicle Monitoring</h2>
+    <h2>Real-Time Vehicle Monitoring</h2>
 
     <div id="sensor_chart"></div>
     <div id="failure_status">Failure Status: Loading...</div>
@@ -23,7 +23,7 @@
 
             // Update failure status
             document.getElementById("failure_status").innerHTML = 
-                "Failure Status: " + (failure_status ? "⚠ FAILURE" : "✅ NORMAL");
+                "Failure Status: " + (failure_status ? "⚠ FAILURE" : "NORMAL");
 
             // Update Chart
             Plotly.newPlot('sensor_chart', [{

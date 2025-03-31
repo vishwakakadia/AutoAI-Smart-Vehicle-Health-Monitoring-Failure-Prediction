@@ -10,15 +10,15 @@ data_list = []
 
 # Debugging function
 def on_log(client, userdata, level, buf):
-    print(f"📜 MQTT Log: {buf}")  # Shows connection logs
+    print(f"MQTT Log: {buf}")  # Shows connection logs
 
 # Fix: Update function signature to accept 'properties'
 def on_connect(client, userdata, flags, rc, properties):
     if rc == 0:
-        print(f"✅ Connected to MQTT Broker: {BROKER} with result code {rc}")
+        print(f"Connected to MQTT Broker: {BROKER} with result code {rc}")
         client.subscribe(TOPIC)
     else:
-        print(f"❌ Failed to connect, return code: {rc}")
+        print(f"Failed to connect, return code: {rc}")
 
 # Callback when message is received
 def on_message(client, userdata, message):
@@ -29,7 +29,7 @@ def on_message(client, userdata, message):
     if len(data_list) >= 10:
         df = pd.DataFrame(data_list)
         df.to_csv("real_time_sensor_data.csv", mode="a", header=False, index=False)
-        print("✅ Data Saved to CSV")
+        print("Data Saved to CSV")
         data_list.clear()
 
 # Fix for MQTT Deprecation Warning

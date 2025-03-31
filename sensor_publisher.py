@@ -37,5 +37,5 @@ while True:
     data = generate_sensor_data()
     json_data = json.dumps(data)
     client.publish(TOPIC, json_data)
-    print(f"🚗 Sent Data: {json_data}")
+    print(f"Sent Data: {json_data}")
     time.sleep(2)  # Send data every 2 seconds

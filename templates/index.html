@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -36,4 +36,66 @@
         setInterval(fetchData, 2000);
     </script>
 </body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Vehicle Monitoring</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h2>🚗 Real-Time Vehicle Monitoring</h2>
+
+    <div id="engine_chart"></div>
+    <div id="fuel_chart"></div>
+    <div id="battery_chart"></div>
+    <div id="oil_chart"></div>
+    <div id="load_chart"></div>
+
+    <h3 id="failure_status" style="color: green;">Failure Status: ✅ NORMAL</h3>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('/get_data');
+            const data = await response.json();
+
+            let engine_temp = data.map(d => d.engine_temp);
+            let fuel_pressure = data.map(d => d.fuel_pressure);
+            let battery_voltage = data.map(d => d.battery_voltage);
+            let oil_temp = data.map(d => d.oil_temp);
+            let engine_load = data.map(d => d.engine_load);
+
+            let latest = data[data.length - 1];
+
+            // Update Failure Status
+            let statusText = "✅ NORMAL";
+            let statusColor = "green";
+            if (latest.engine_temp > 110 || latest.fuel_pressure < 35) {
+                statusText = "⚠ CRITICAL FAILURE";
+                statusColor = "red";
+                sendAlert();  // Trigger alert sound
+            }
+            document.getElementById("failure_status").innerText = "Failure Status: " + statusText;
+            document.getElementById("failure_status").style.color = statusColor;
+
+            // Update Charts
+            Plotly.newPlot('engine_chart', [{ y: engine_temp, name: "Engine Temp", type: 'scatter' }]);
+            Plotly.newPlot('fuel_chart', [{ y: fuel_pressure, name: "Fuel Pressure", type: 'scatter' }]);
+            Plotly.newPlot('battery_chart', [{ y: battery_voltage, name: "Battery Voltage", type: 'scatter' }]);
+            Plotly.newPlot('oil_chart', [{ y: oil_temp, name: "Oil Temp", type: 'scatter' }]);
+            Plotly.newPlot('load_chart', [{ y: engine_load, name: "Engine Load", type: 'scatter' }]);
+        }
+
+        function sendAlert() {
+            var audio = new Audio('alert.mp3'); // Add alert sound
+            audio.play();
+        }
+
+        setInterval(fetchData, 2000);
+    </script>
+</body>
 </html>
+

@@ -12,7 +12,7 @@ AutoAI is an AI-driven system designed to monitor vehicle health and predict pot
 
 - **Algorithm**: XGBoost Classifier
 - **Training Data**: `real_time_sensor_data.csv` containing various sensor readings.
-- **Model File**: `xgb_model.pkl` (pre-trained model ready for deployment
+- **Model File**: `xgb_model.pkl` (pre-trained model ready for deployment)
 
 1. **Clone the Repository**:
 
